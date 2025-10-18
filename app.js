@@ -26,6 +26,12 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         salvarFuncionario();
     });
+
+    document.getElementById('btnSalarioMaior5k').addEventListener('click', gerarRelatorioSalarioMaior5k);
+    document.getElementById('btnMediaSalarial').addEventListener('click', gerarRelatorioMediaSalarial);
+    document.getElementById('btnCargosUnicos').addEventListener('click', gerarRelatorioCargosUnicos);
+    document.getElementById('btnNomesMaiusculo').addEventListener('click', gerarRelatorioNomesMaiusculo);
+
     renderizarTabela();
 });
 
@@ -67,23 +73,17 @@ function renderizarTabela() {
         `;
         
         const tdAcoes = document.createElement('td');
-        
         const btnEditar = document.createElement('button');
         btnEditar.textContent = 'Editar';
-        btnEditar.addEventListener('click', () => {
-            prepararEdicao(index);
-        });
+        btnEditar.addEventListener('click', () => { prepararEdicao(index); });
         
         const btnExcluir = document.createElement('button');
         btnExcluir.textContent = 'Excluir';
-        btnExcluir.addEventListener('click', () => {
-            excluirFuncionario(index);
-        });
+        btnExcluir.addEventListener('click', () => { excluirFuncionario(index); });
 
         tdAcoes.appendChild(btnEditar);
         tdAcoes.appendChild(btnExcluir);
         tr.appendChild(tdAcoes);
-        
         tbody.appendChild(tr);
     });
 }
@@ -103,5 +103,53 @@ function excluirFuncionario(index) {
         funcionarios.splice(index, 1);
         renderizarTabela();
         console.log(`Funcionário ${nome} excluído.`);
+    }
+}
+
+function gerarRelatorioSalarioMaior5k() {
+    console.clear();
+    console.log("--- Relatório: Salários > R$ 5000 ---");
+    const filtro = funcionarios.filter(func => func.getSalario() > 5000);
+    if (filtro.length === 0) {
+        console.log("Nenhum funcionário com salário acima de R$ 5000.");
+    } else {
+        filtro.forEach(func => console.log(func.toString()));
+    }
+}
+
+function gerarRelatorioMediaSalarial() {
+    console.clear();
+    console.log("--- Relatório: Média Salarial ---");
+    if (funcionarios.length === 0) {
+        console.log("Nenhum funcionário cadastrado.");
+        return;
+    }
+    const totalSalarios = funcionarios.reduce((soma, func) => soma + func.getSalario(), 0);
+    const media = totalSalarios / funcionarios.length;
+    console.log(`A média salarial da empresa é: R$ ${media.toFixed(2)}`);
+}
+
+function gerarRelatorioCargosUnicos() {
+    console.clear();
+    console.log("--- Relatório: Cargos Únicos ---");
+    const todosCargos = funcionarios.map(func => func.getCargo());
+    const cargosUnicos = [...new Set(todosCargos)];
+    
+    if (cargosUnicos.length === 0) {
+        console.log("Nenhum cargo cadastrado.");
+    } else {
+        console.log(cargosUnicos);
+    }
+}
+
+function gerarRelatorioNomesMaiusculo() {
+    console.clear();
+    console.log("--- Relatório: Nomes em Maiúsculo ---");
+    const nomesMaiusculos = funcionarios.map(func => func.getNome().toUpperCase());
+    
+    if (nomesMaiusculos.length === 0) {
+        console.log("Nenhum funcionário cadastrado.");
+    } else {
+        nomesMaiusculos.forEach(nome => console.log(nome));
     }
 }
