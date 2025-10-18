@@ -7,32 +7,34 @@
 </head>
 <body>
     <h1>Gestão de Funcionários - Startup</h1>
-
     <h2>Cadastrar Funcionário</h2>
     <form id="formFuncionario">
         <div>
             <label for="nome">Nome:</label>
-            <input type="text" id="nome" required> </div>
+            <input type="text" id="nome" required>
+        </div>
         <br>
         <div>
             <label for="idade">Idade:</label>
-            <input type="number" id="idade" required> </div>
+            <input type="number" id="idade" required>
+        </div>
         <br>
         <div>
             <label for="cargo">Cargo:</label>
-            <input type="text" id="cargo" required> </div>
+            <input type="text" id="cargo" required>
+        </div>
         <br>
         <div>
             <label for="salario">Salário (R$):</label>
-            <input type="number" id="salario" step="100" min="0" required> </div>
+            <input type="number" id="salario" step="100" min="0" required>
+        </div>
         <br>
-        <button type="button" onclick="salvarFuncionario()">Cadastrar</button> </form>
-
+        <button type="submit">Salvar</button> </form>
     <hr>
-
     <h2>Funcionários Cadastrados</h2>
     <table border="1" style="width: 100%; border-collapse: collapse;">
-        <thead> <tr>
+        <thead>
+            <tr>
                 <th>Nome</th>
                 <th>Idade</th>
                 <th>Cargo</th>
@@ -41,9 +43,8 @@
             </tr>
         </thead>
         <tbody id="tabelaFuncionariosBody">
-            </tbody>
+        </tbody>
     </table>
-
     <script src="app.js"></script>
 </body>
 </html>
