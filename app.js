@@ -106,50 +106,60 @@ function excluirFuncionario(index) {
     }
 }
 
+function exibirRelatorio(titulo, conteudo) {
+    const outputEl = document.getElementById('resultadosRelatorios');
+    outputEl.innerText = `${titulo}\n\n${conteudo}`;
+}
+
 function gerarRelatorioSalarioMaior5k() {
-    console.clear();
-    console.log("--- Relatório: Salários > R$ 5000 ---");
+    const titulo = "Relatório: Salários > R$ 5000";
     const filtro = funcionarios.filter(func => func.getSalario() > 5000);
+    
+    let conteudo;
     if (filtro.length === 0) {
-        console.log("Nenhum funcionário com salário acima de R$ 5000.");
+        conteudo = "Nenhum funcionário com salário acima de R$ 5000.";
     } else {
-        filtro.forEach(func => console.log(func.toString()));
+        conteudo = filtro.map(func => func.toString()).join("\n");
     }
+    exibirRelatorio(titulo, conteudo);
 }
 
 function gerarRelatorioMediaSalarial() {
-    console.clear();
-    console.log("--- Relatório: Média Salarial ---");
+    const titulo = "Relatório: Média Salarial";
+    let conteudo;
     if (funcionarios.length === 0) {
-        console.log("Nenhum funcionário cadastrado.");
-        return;
+        conteudo = "Nenhum funcionário cadastrado.";
+    } else {
+        const totalSalarios = funcionarios.reduce((soma, func) => soma + func.getSalario(), 0);
+        const media = totalSalarios / funcionarios.length;
+        conteudo = `A média salarial da empresa é: R$ ${media.toFixed(2)}`;
     }
-    const totalSalarios = funcionarios.reduce((soma, func) => soma + func.getSalario(), 0);
-    const media = totalSalarios / funcionarios.length;
-    console.log(`A média salarial da empresa é: R$ ${media.toFixed(2)}`);
+    exibirRelatorio(titulo, conteudo);
 }
 
 function gerarRelatorioCargosUnicos() {
-    console.clear();
-    console.log("--- Relatório: Cargos Únicos ---");
+    const titulo = "Relatório: Cargos Únicos";
     const todosCargos = funcionarios.map(func => func.getCargo());
     const cargosUnicos = [...new Set(todosCargos)];
     
+    let conteudo;
     if (cargosUnicos.length === 0) {
-        console.log("Nenhum cargo cadastrado.");
+        conteudo = "Nenhum cargo cadastrado.";
     } else {
-        console.log(cargosUnicos);
+        conteudo = cargosUnicos.join("\n");
     }
+    exibirRelatorio(titulo, conteudo);
 }
 
 function gerarRelatorioNomesMaiusculo() {
-    console.clear();
-    console.log("--- Relatório: Nomes em Maiúsculo ---");
+    const titulo = "Relatório: Nomes em Maiúsculo";
     const nomesMaiusculos = funcionarios.map(func => func.getNome().toUpperCase());
     
+    let conteudo;
     if (nomesMaiusculos.length === 0) {
-        console.log("Nenhum funcionário cadastrado.");
+        conteudo = "Nenhum funcionário cadastrado.";
     } else {
-        nomesMaiusculos.forEach(nome => console.log(nome));
+        conteudo = nomesMaiusculos.join("\n");
     }
+    exibirRelatorio(titulo, conteudo);
 }
