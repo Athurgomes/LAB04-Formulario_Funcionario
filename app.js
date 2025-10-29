@@ -18,148 +18,163 @@ class Funcionario {
     }
 }
 
-let funcionarios = [];
-let idEdicao = null;
+class FuncionarioController {
+    constructor() {
+        this.funcionarios = [];
+        this.idEdicao = null;
+
+        this.form = document.getElementById('formFuncionario');
+        this.nomeEl = document.getElementById('nome');
+        this.idadeEl = document.getElementById('idade');
+        this.cargoEl = document.getElementById('cargo');
+        this.salarioEl = document.getElementById('salario');
+        this.tbody = document.getElementById('tabelaFuncionariosBody');
+        this.outputEl = document.getElementById('resultadosRelatorios');
+
+        this.registrarEventListeners();
+        this.renderizarTabela();
+    }
+
+    registrarEventListeners() {
+        this.form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            this.salvarFuncionario();
+        });
+
+        document.getElementById('btnSalarioMaior5k').addEventListener('click', () => this.gerarRelatorioSalarioMaior5k());
+        document.getElementById('btnMediaSalarial').addEventListener('click', () => this.gerarRelatorioMediaSalarial());
+        document.getElementById('btnCargosUnicos').addEventListener('click', () => this.gerarRelatorioCargosUnicos());
+        document.getElementById('btnNomesMaiusculo').addEventListener('click', () => this.gerarRelatorioNomesMaiusculo());
+    }
+
+    salvarFuncionario() {
+        const nome = this.nomeEl.value;
+        const idade = this.idadeEl.value;
+        const cargo = this.cargoEl.value;
+        const salario = this.salarioEl.value;
+
+        if (this.idEdicao !== null) {
+            const func = this.funcionarios[this.idEdicao];
+            func.setNome(nome);
+            func.setIdade(idade);
+            func.setCargo(cargo);
+            func.setSalario(salario);
+            console.log("Funcionário editado!");
+            this.idEdicao = null;
+        } else {
+            const novoFuncionario = new Funcionario(nome, idade, cargo, salario);
+            this.funcionarios.push(novoFuncionario);
+            console.log("Funcionário cadastrado!");
+        }
+
+        this.renderizarTabela();
+        this.form.reset();
+    }
+
+    renderizarTabela() {
+        this.tbody.innerHTML = '';
+
+        this.funcionarios.forEach((func, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${func.getNome()}</td>
+                <td>${func.getIdade()}</td>
+                <td>${func.getCargo()}</td>
+                <td>R$ ${func.getSalario().toFixed(2)}</td>
+            `;
+            
+            const tdAcoes = document.createElement('td');
+            const btnEditar = document.createElement('button');
+            btnEditar.textContent = 'Editar';
+            btnEditar.addEventListener('click', () => { this.prepararEdicao(index); });
+            
+            const btnExcluir = document.createElement('button');
+            btnExcluir.textContent = 'Excluir';
+            btnExcluir.addEventListener('click', () => { this.excluirFuncionario(index); });
+
+            tdAcoes.appendChild(btnEditar);
+            tdAcoes.appendChild(btnExcluir);
+            tr.appendChild(tdAcoes);
+            this.tbody.appendChild(tr);
+        });
+    }
+
+    prepararEdicao(index) {
+        const func = this.funcionarios[index];
+        this.nomeEl.value = func.getNome();
+        this.idadeEl.value = func.getIdade();
+        this.cargoEl.value = func.getCargo();
+        this.salarioEl.value = func.getSalario();
+        this.idEdicao = index;
+    }
+
+    excluirFuncionario(index) {
+        const nome = this.funcionarios[index].getNome();
+        if (confirm(`Tem certeza que deseja excluir ${nome}?`)) {
+            this.funcionarios.splice(index, 1);
+            this.renderizarTabela();
+            console.log(`Funcionário ${nome} excluído.`);
+        }
+    }
+
+    exibirRelatorio(titulo, conteudo) {
+        this.outputEl.innerText = `${titulo}\n\n${conteudo}`;
+    }
+
+    gerarRelatorioSalarioMaior5k() {
+        const titulo = "Relatório: Salários > R$ 5000";
+        const filtro = this.funcionarios.filter(func => func.getSalario() > 5000);
+        
+        let conteudo;
+        if (filtro.length === 0) {
+            conteudo = "Nenhum funcionário com salário acima de R$ 5000.";
+        } else {
+            conteudo = filtro.map(func => func.toString()).join("\n");
+        }
+        this.exibirRelatorio(titulo, conteudo);
+    }
+
+    gerarRelatorioMediaSalarial() {
+        const titulo = "Relatório: Média Salarial";
+        let conteudo;
+        if (this.funcionarios.length === 0) {
+            conteudo = "Nenhum funcionário cadastrado.";
+        } else {
+            const totalSalarios = this.funcionarios.reduce((soma, func) => soma + func.getSalario(), 0);
+            const media = totalSalarios / this.funcionarios.length;
+            conteudo = `A média salarial da empresa é: R$ ${media.toFixed(2)}`;
+        }
+        this.exibirRelatorio(titulo, conteudo);
+    }
+
+    gerarRelatorioCargosUnicos() {
+        const titulo = "Relatório: Cargos Únicos";
+        const todosCargos = this.funcionarios.map(func => func.getCargo());
+        const cargosUnicos = [...new Set(todosCargos)];
+        
+        let conteudo;
+        if (cargosUnicos.length === 0) {
+            conteudo = "Nenhum cargo cadastrado.";
+        } else {
+            conteudo = cargosUnicos.join("\n");
+        }
+        this.exibirRelatorio(titulo, conteudo);
+    }
+
+    gerarRelatorioNomesMaiusculo() {
+        const titulo = "Relatório: Nomes em Maiúsculo";
+        const nomesMaiusculos = this.funcionarios.map(func => func.getNome().toUpperCase());
+        
+        let conteudo;
+        if (nomesMaiusculos.length === 0) {
+            conteudo = "Nenhum funcionário cadastrado.";
+        } else {
+            conteudo = nomesMaiusculos.join("\n");
+        }
+        this.exibirRelatorio(titulo, conteudo);
+    }
+}
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('formFuncionario').addEventListener('submit', (event) => {
-        event.preventDefault();
-        salvarFuncionario();
-    });
-
-    document.getElementById('btnSalarioMaior5k').addEventListener('click', gerarRelatorioSalarioMaior5k);
-    document.getElementById('btnMediaSalarial').addEventListener('click', gerarRelatorioMediaSalarial);
-    document.getElementById('btnCargosUnicos').addEventListener('click', gerarRelatorioCargosUnicos);
-    document.getElementById('btnNomesMaiusculo').addEventListener('click', gerarRelatorioNomesMaiusculo);
-
-    renderizarTabela();
+    new FuncionarioController();
 });
-
-function salvarFuncionario() {
-    const nome = document.getElementById('nome').value;
-    const idade = document.getElementById('idade').value;
-    const cargo = document.getElementById('cargo').value;
-    const salario = document.getElementById('salario').value;
-
-    if (idEdicao !== null) {
-        const func = funcionarios[idEdicao];
-        func.setNome(nome);
-        func.setIdade(idade);
-        func.setCargo(cargo);
-        func.setSalario(salario);
-        console.log("Funcionário editado!");
-        idEdicao = null;
-    } else {
-        const novoFuncionario = new Funcionario(nome, idade, cargo, salario);
-        funcionarios.push(novoFuncionario);
-        console.log("Funcionário cadastrado!");
-    }
-
-    renderizarTabela();
-    document.getElementById('formFuncionario').reset();
-}
-
-function renderizarTabela() {
-    const tbody = document.getElementById('tabelaFuncionariosBody');
-    tbody.innerHTML = '';
-
-    funcionarios.forEach((func, index) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${func.getNome()}</td>
-            <td>${func.getIdade()}</td>
-            <td>${func.getCargo()}</td>
-            <td>R$ ${func.getSalario().toFixed(2)}</td>
-        `;
-        
-        const tdAcoes = document.createElement('td');
-        const btnEditar = document.createElement('button');
-        btnEditar.textContent = 'Editar';
-        btnEditar.addEventListener('click', () => { prepararEdicao(index); });
-        
-        const btnExcluir = document.createElement('button');
-        btnExcluir.textContent = 'Excluir';
-        btnExcluir.addEventListener('click', () => { excluirFuncionario(index); });
-
-        tdAcoes.appendChild(btnEditar);
-        tdAcoes.appendChild(btnExcluir);
-        tr.appendChild(tdAcoes);
-        tbody.appendChild(tr);
-    });
-}
-
-function prepararEdicao(index) {
-    const func = funcionarios[index];
-    document.getElementById('nome').value = func.getNome();
-    document.getElementById('idade').value = func.getIdade();
-    document.getElementById('cargo').value = func.getCargo();
-    document.getElementById('salario').value = func.getSalario();
-    idEdicao = index;
-}
-
-function excluirFuncionario(index) {
-    const nome = funcionarios[index].getNome();
-    if (confirm(`Tem certeza que deseja excluir ${nome}?`)) {
-        funcionarios.splice(index, 1);
-        renderizarTabela();
-        console.log(`Funcionário ${nome} excluído.`);
-    }
-}
-
-function exibirRelatorio(titulo, conteudo) {
-    const outputEl = document.getElementById('resultadosRelatorios');
-    outputEl.innerText = `${titulo}\n\n${conteudo}`;
-}
-
-function gerarRelatorioSalarioMaior5k() {
-    const titulo = "Relatório: Salários > R$ 5000";
-    const filtro = funcionarios.filter(func => func.getSalario() > 5000);
-    
-    let conteudo;
-    if (filtro.length === 0) {
-        conteudo = "Nenhum funcionário com salário acima de R$ 5000.";
-    } else {
-        conteudo = filtro.map(func => func.toString()).join("\n");
-    }
-    exibirRelatorio(titulo, conteudo);
-}
-
-function gerarRelatorioMediaSalarial() {
-    const titulo = "Relatório: Média Salarial";
-    let conteudo;
-    if (funcionarios.length === 0) {
-        conteudo = "Nenhum funcionário cadastrado.";
-    } else {
-        const totalSalarios = funcionarios.reduce((soma, func) => soma + func.getSalario(), 0);
-        const media = totalSalarios / funcionarios.length;
-        conteudo = `A média salarial da empresa é: R$ ${media.toFixed(2)}`;
-    }
-    exibirRelatorio(titulo, conteudo);
-}
-
-function gerarRelatorioCargosUnicos() {
-    const titulo = "Relatório: Cargos Únicos";
-    const todosCargos = funcionarios.map(func => func.getCargo());
-    const cargosUnicos = [...new Set(todosCargos)];
-    
-    let conteudo;
-    if (cargosUnicos.length === 0) {
-        conteudo = "Nenhum cargo cadastrado.";
-    } else {
-        conteudo = cargosUnicos.join("\n");
-    }
-    exibirRelatorio(titulo, conteudo);
-}
-
-function gerarRelatorioNomesMaiusculo() {
-    const titulo = "Relatório: Nomes em Maiúsculo";
-    const nomesMaiusculos = funcionarios.map(func => func.getNome().toUpperCase());
-    
-    let conteudo;
-    if (nomesMaiusculos.length === 0) {
-        conteudo = "Nenhum funcionário cadastrado.";
-    } else {
-        conteudo = nomesMaiusculos.join("\n");
-    }
-    exibirRelatorio(titulo, conteudo);
-}
